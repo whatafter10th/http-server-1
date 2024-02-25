@@ -1,0 +1,85 @@
+const express = require("express");
+const bodyParser = require("body-parser");
+
+const app = express();
+const port = 3000; //process.env.PORT;
+
+app.use(bodyParser.json());
+
+let todoArr = [
+  {
+    id: 1,
+    title: "Go to Gym",
+    description: "Go to Gym from 6-7am",
+    completed: true,
+  },
+  {
+    id: 2,
+    title: "Go to JK",
+    description: "Go to JK from 7-8pm",
+    completed: false,
+  },
+];
+
+//GET ALL TODOs
+app.get("/mytodos", function showTODOs(req, res) {
+  res.json(todoArr);
+});
+
+//GET a specific TODO
+app.get("/mytodos/:id", function showOneTODO(req, res) {
+  const index = todoArr.findIndex((obj) => {
+    return obj.id === parseInt(req.params.id);
+  });
+  res.json(todoArr[index]);
+});
+
+//DELETE a specific TODO
+app.delete("/mytodos/:id", function removeTODO(req, res) {
+  const index = todoArr
+    .map(function (x) {
+      return x.id;
+    })
+    .indexOf(parseInt(req.params.id));
+  if (index > -1) {
+    // only splice array when item is found
+    todoArr.splice(index, 1); // 2nd parameter means remove one item only
+  }
+  res.json(todoArr);
+});
+
+//ADD a new TODO
+app.post("/mytodos", function addTODO(req, res) {
+  console.log(req.body.id);
+  console.log(req.body.title);
+  console.log(req.body.description);
+  console.log(req.body.completed);
+
+  todoArr.push({
+    id: req.body.id,
+    title: req.body.title,
+    description: req.body.description,
+    completed: req.body.completed,
+  });
+
+  res.json(todoArr);
+});
+
+//UPDATE a specific TODO as Completed
+app.patch("/mytodos/:id", function markTODOasDone(req, res) {
+  console.log(req.params.id);
+  console.log(req.body.completed);
+
+  const index = todoArr.findIndex((obj) => {
+    return obj.id === parseInt(req.params.id);
+  });
+  if (index !== -1) {
+    todoArr[index].completed = req.body.completed;
+  }
+
+  res.json(todoArr);
+});
+
+app.listen(port, function printX() {
+  console.log(`Example app listening on port ${port}`);
+});
